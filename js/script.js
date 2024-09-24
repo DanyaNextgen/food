@@ -8,6 +8,15 @@ let modal = document.querySelector('.modal')
 let open_modal = document.querySelectorAll('[data-open]')
 let close_modal = document.querySelector('[data-close]')
 let slideIndex = 0
+let genderBtn = document.querySelectorAll('#gender .calculating__choose-item')
+let ratioInputs = document.querySelectorAll('.calculating__choose_medium input')
+let activeBtns = document.querySelectorAll('.calculating__choose_big .calculating__choose-item')
+let result_view = document.querySelector('.calculating__result span')
+let user = {
+    gender: 'woman',
+    act: 'small',
+}
+
 
 showSlide()
 
@@ -82,4 +91,55 @@ links[1].onclick = function(e) {
         behavior: 'smooth'
     });
 };
+
+genderBtn.forEach(btn => {
+    btn.onclick = () => {
+        document.querySelector('.calculating__choose-item_active').classList.remove('calculating__choose-item_active')
+        btn.classList.add('calculating__choose-item_active')
+        user.gender = btn.getAttribute('data-gender')
+    }
+})
+
+ratioInputs.forEach(inp => {
+    inp.onkeyup = () => {
+        user[inp.id] = inp.value
+    }
+})
+
+activeBtns.forEach(btn => {
+    btn.onclick = () => {
+        document.querySelector('.calculating__choose_big .calculating__choose-item_active').classList.remove('calculating__choose-item_active')
+        btn.classList.add('calculating__choose-item_active')
+        user.act = btn.getAttribute('data-act')   
+        let result = 0
+
+        if(user.gender === 'woman') {
+            result = 655.1 + (9.563 * user.weight) + (1.85 * user.height) - (4.676 * user.age)
+        }
+        else {
+            result = 66.5 + (13.75 * user.weight) + (5.003 * user.height) - (6.775 * user.age)
+        }
+        result_view.innerHTML = Math.round(result)
+    }
+})
+
+let endDate = new Date(Date.now() + 12 * 24 * 60 * 60 * 1000 + 20 * 60 * 60 * 1000 + 56 * 60 * 1000 + 20 * 1000);
+
+function updateCountdown() {
+    let timeRemaining = endDate - Date.now();
+
+    let days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+    let hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    let minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+    let seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+    document.querySelector('#days').textContent = days;
+    document.querySelector('#hours').textContent = hours;
+    document.querySelector('#minutes').textContent = minutes;
+    document.querySelector('#seconds').textContent = seconds;
+}
+
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
 
