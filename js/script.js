@@ -1,18 +1,18 @@
-let slides = document.querySelectorAll('.offer__slide')
-let prev = document.querySelector('.offer__slider-prev')
-let next = document.querySelector('.offer__slider-next')
-let tabs = document.querySelectorAll('.tabcontent')
-let tabButtons = document.querySelectorAll('.tabheader__item')
-let current_view = document.querySelector('#current')
-let modal = document.querySelector('.modal')
-let open_modal = document.querySelectorAll('[data-open]')
-let close_modal = document.querySelector('[data-close]')
-let slideIndex = 0
-let genderBtn = document.querySelectorAll('#gender .calculating__choose-item')
-let ratioInputs = document.querySelectorAll('.calculating__choose_medium input')
-let activeBtns = document.querySelectorAll('.calculating__choose_big .calculating__choose-item')
-let result_view = document.querySelector('.calculating__result span')
-let user = {
+let slides = document.querySelectorAll('.offer__slide'),
+    prev = document.querySelector('.offer__slider-prev'),
+    next = document.querySelector('.offer__slider-next'),
+    tabs = document.querySelectorAll('.tabcontent'),
+    tabButtons = document.querySelectorAll('.tabheader__item'),
+    current_view = document.querySelector('#current'),
+    modal = document.querySelector('.modal'),
+    open_modal = document.querySelectorAll('[data-open]'),
+    close_modal = document.querySelector('[data-close]'),
+    genderBtn = document.querySelectorAll('#gender .calculating__choose-item'),
+    ratioInputs = document.querySelectorAll('.calculating__choose_medium input'),
+    activeBtns = document.querySelectorAll('.calculating__choose_big .calculating__choose-item'),
+    result_view = document.querySelector('.calculating__result span')
+    slideIndex = 0
+    user = {
     gender: 'woman',
     act: 'small',
 }
@@ -123,23 +123,86 @@ activeBtns.forEach(btn => {
     }
 })
 
-let endDate = new Date(Date.now() + 12 * 24 * 60 * 60 * 1000 + 20 * 60 * 60 * 1000 + 56 * 60 * 1000 + 20 * 1000);
+let endTime = '2024-09-27 16:45'
 
-function updateCountdown() {
-    let timeRemaining = endDate - Date.now();
+function getRemainingTime(deadline) {
+    const t = Date.parse(deadline) - Date.now(new Date()),
+        days = Math.floor((t / 1000) / 60 / 60 / 24),
+        hours = Math.floor((t / 1000) / 60 / 60 % 24),
+        minutes = Math.floor((t / 1000) / 60 % 24),
+        seconds = Math.floor((t / 1000) % 60)
 
-    let days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-    let hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    let minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-    let seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-
-    document.querySelector('#days').textContent = days;
-    document.querySelector('#hours').textContent = hours;
-    document.querySelector('#minutes').textContent = minutes;
-    document.querySelector('#seconds').textContent = seconds;
+    return {
+        t: t,
+        days: days,
+        hours: hours, 
+        minutes: minutes,
+        seconds: seconds
+    }
 }
 
-setInterval(updateCountdown, 1000);
-updateCountdown();
+function setTimer(selector, endTime) {
+    const t = document.querySelector(selector),
+        days = document.querySelector('#days'),
+        hours = document.querySelector('#hours'),
+        minutes = document.querySelector('#minutes'),
+        seconds = document.querySelector('#seconds')
 
+        timerInterval = setInterval(updateTime, 1000)
+    
+        function updateTime() {
+            let t = getRemainingTime(endTime)
+
+            if (t.t <= 0) { 
+                clearInterval(timerInterval)
+                days.innerHTML = 0
+                hours.innerHTML = 0
+                minutes.innerHTML = 0
+                seconds.innerHTML = 0
+                launchConfetti()
+                return;
+            }
+
+            days.innerHTML = t.days
+            hours.innerHTML = t.hours
+            minutes.innerHTML = t.minutes
+            seconds.innerHTML = t.seconds
+        }
+}
+
+function launchConfetti() {
+    let duration = 15 * 1000
+    let animationEnd = Date.now() + duration
+    let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 }
+    
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min
+    }
+
+    let interval = setInterval(function() {
+        let timeLeft = animationEnd - Date.now()
+
+        if (timeLeft <= 0) {
+            clearInterval(interval)
+            return;
+        }
+
+        let particleCount = 50 * (timeLeft / duration)
+
+        confetti(
+            Object.assign({}, defaults, {
+                particleCount,
+                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+            })
+        );
+        confetti(
+            Object.assign({}, defaults, {
+                particleCount,
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+            })
+        )
+    }, 250)
+}
+
+setTimer('.timer', endTime)
 
